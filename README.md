@@ -1,4 +1,4 @@
-# Digital Credentials Consortium Status Service
+# Digital Credentials Consortium Git Verifiable Credential Status Service
 
 [![Build status](https://img.shields.io/github/actions/workflow/status/digitalcredentials/status-service-git/main.yml?branch=main)](https://github.com/digitalcredentials/status-service-git/actions?query=workflow%3A%22Node.js+CI%22)
 
