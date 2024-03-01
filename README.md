@@ -9,6 +9,7 @@ IMPORTANT NOTE ABOUT VERSIONING: If you are using a Docker Hub image of this rep
 - [Summary](#summary)
 - [Environment Variables](#environment-variables)
 - [Signing Key](#signing-key)
+  - [DID Registries](#did-registries)
 - [Usage](#usage)
   - [Allocate a status position](#allocate-status-position)
   - [Revoke](#revoke)
@@ -21,14 +22,14 @@ IMPORTANT NOTE ABOUT VERSIONING: If you are using a Docker Hub image of this rep
 
 ## Summary
 
-A microservice (running as a nodejs express app) that allocates a [revocation status position](https://www.w3.org/TR/vc-status-list/) for a [Verifiable Credential](https://www.w3.org/TR/vc-data-model/), adds the position to the credential, and returns the credential. The status position can later be used to revoke the credential.
+A microservice (running as a nodejs express app) that uses a Git service to allocate a [status position](https://www.w3.org/TR/vc-status-list) for a [Verifiable Credential](https://www.w3.org/TR/vc-data-model), adds the position to the credential, and returns the credential. The status position can later be used to revoke the credential.
 
 Implements two HTTP endpoints:
 
- * [POST /credentials/status/allocate](https://w3c-ccg.github.io/vc-api/#issue-credential)
- * [POST /credentials/status](https://w3c-ccg.github.io/vc-api/#update-status)
+- [POST /credentials/status/allocate](https://w3c-ccg.github.io/vc-api/#issue-credential)
+- [POST /credentials/status](https://w3c-ccg.github.io/vc-api/#update-status)
 
-The `/credentials/status` endpoint corresponds to the [VC-API /credentials/status endpoint](https://w3c-ccg.github.io/vc-api/#update-status)
+The `/credentials/status` endpoint corresponds to the [VC-API /credentials/status endpoint](https://w3c-ccg.github.io/vc-api#update-status)
 
 ## Environment Variables
 
@@ -36,8 +37,8 @@ This service provides support for managing credential status in a variety of Git
 
 | Key | Description | Type | Required |
 | --- | --- | --- | --- |
-| `CRED_STATUS_SERVICE` | name of the Git service that will host the credential status resources | `github` \| `gitlab` | yes if `ENABLE_STATUS_ALLOCATION` is true |
-| \* `CRED_STATUS_OWNER` | name of the owner account (personal or organization) in the Git service that will host the credential status resources | string | yes if `ENABLE_STATUS_ALLOCATION` is true |
+| `CRED_STATUS_SERVICE` | name of the Git service used to manage credential status data | `github` \| `gitlab` | yes if `ENABLE_STATUS_ALLOCATION` is true |
+| \* `CRED_STATUS_OWNER` | name of the owner account (personal or organization) in the Git service used to manage credential status data | string | yes if `ENABLE_STATUS_ALLOCATION` is true |
 | \* `CRED_STATUS_REPO_NAME` | name of the status credential repository | string | yes if `ENABLE_STATUS_ALLOCATION` is true |
 | \* `CRED_STATUS_REPO_ID` | ID of the status credential repository | string | yes if `ENABLE_STATUS_ALLOCATION` is true and if `CRED_STATUS_SERVICE` = `gitlab` |
 | \* `CRED_STATUS_META_REPO_NAME` | name of the credential status metadata repository | string | yes if `ENABLE_STATUS_ALLOCATION` is true |
@@ -45,22 +46,22 @@ This service provides support for managing credential status in a variety of Git
 | `CRED_STATUS_ACCESS_TOKEN` | access token for the credential status repositories | string | yes if `ENABLE_STATUS_ALLOCATION` is true |
 | `CRED_STATUS_DID_SEED` | seed used to deterministically generate DID | string | yes if `ENABLE_STATUS_ALLOCATION` is true |
 | `PORT` | HTTP port on which to run the express app | number | no (default: `4008`) |
-| `ERROR_LOG_FILE` | log file for all errors - see [Logging](#logging) | string | no |
-| `LOG_ALL_FILE` | log file for everything - see [Logging](#logging) | string | no |
-| `CONSOLE_LOG_LEVEL` | console log level - see [Logging](#logging) | `error` \| `warn`\| `info` \| `http` \| `verbose` \| `debug` \| `silly` | no (default: `silly`) |
-| `LOG_LEVEL` | log level for application - see [Logging](#logging) | `error` \| `warn`\| `info` \| `http` \| `verbose` \| `debug` \| `silly` | no (default: `silly`) |
+| `ERROR_LOG_FILE` | log file for all errors (see [Logging](#logging)) | string | no |
+| `LOG_ALL_FILE` | log file for everything (see [Logging](#logging)) | string | no |
+| `CONSOLE_LOG_LEVEL` | console log level (see [Logging](#logging)) | `error` \| `warn`\| `info` \| `http` \| `verbose` \| `debug` \| `silly` | no (default: `silly`) |
+| `LOG_LEVEL` | log level for application (see [Logging](#logging)) | `error` \| `warn`\| `info` \| `http` \| `verbose` \| `debug` \| `silly` | no (default: `silly`) |
 
 \* You'll have to create Git repositories for `CRED_STATUS_REPO_NAME` and `CRED_STATUS_META_REPO_NAME` under the ownership of `CRED_STATUS_OWNER`, as they will be used to manage credential status. Full details of the implementation are [here](https://github.com/digitalcredentials/status-list-manager-git).
 
-## Signing key
+## Signing Key
 
 `status-service-git` is configured with a default signing key that can only be used for testing and evaluation.
 
-In production, you must generate your own signing key and assign it to the CRED_STATUS_DID_SEED environment variable. An easy-ish way to generate a new key is explained [here](https://github.com/digitalcredentials/issuer-coordinator#generate-a-new-key). Those instructions will give you a json object with a 'seed' property.  Copy the value of that property and assign it to CRED_STATUS_DID_SEED. 
+In production, you must generate your own signing key and assign it to the `CRED_STATUS_DID_SEED` environment variable. An easy-ish way to generate a new key is explained [here](https://github.com/digitalcredentials/issuer-coordinator#generate-a-new-key). Those instructions will give you a JSON object with a `seed` property. Copy the value of that property and assign it to `CRED_STATUS_DID_SEED`.
 
 ### DID Registries
 
-So that a verifier knows that the status list was signed by a key that is really owned by the claimed issuer, the key (encoded as a DID) has to be confirmed as really belonging to that issuer.  This is typically done by adding the DID to a well known registry that the verifier checks when verifying a credential.
+So that a verifier knows that the status list was signed by a key that is really owned by the claimed issuer, the key (encoded as a DID) has to be confirmed as really belonging to that issuer. This is typically done by adding the DID to a well known registry that the verifier checks when verifying a credential.
 
 The DCC provides a number of registries that work with the verifiers in the Learner Credential Wallet and in the online web based [Verifier Plus](https://verifierplus.org). The DCC registries use GitHub for storage. To request that your DID be added to a registry, submit a pull request in which you've added your [DID](https://www.w3.org/TR/did-core) to the registry file.
 
@@ -71,14 +72,14 @@ The `/credentials/status/allocate` HTTP endpoint is meant to be called from any 
 This express app can be run a few different ways:
 
 - with with the `start` script in package.json
-- directly from the Docker Hub image:  `docker run -dp 4008:4008 digitalcredentials/status-service-git:0.1.0`
+- directly from the Docker Hub image: `docker run -dp 4008:4008 digitalcredentials/status-service-git:0.1.0`
 - with Docker Compose - see how we do that in the [DCC issuer-coordinator](https://github.com/digitalcredentials/issuer-coordinator)
 
-Note that to run this with Docker, you'll of course need to install Docker, which is very easy with the [Docker installers for Windows, Mac, and Linux](https://docs.docker.com/engine/install/).
+Note that to run this with Docker, you'll of course need to install Docker, which is very easy with the [Docker installers for Windows, Mac, and Linux](https://docs.docker.com/engine/install).
 
 ### Allocate Status Position
 
-You can now allocate status positions for verifiable credentials.  Try it out with this CURL command, which you simply paste into the terminal:
+You can now allocate status positions for verifiable credentials. Try it out with this CURL command, which you simply paste into the terminal:
 
 ```
 curl --location 'http://localhost:4008/credentials/status/allocate' \
@@ -130,8 +131,7 @@ curl --location 'http://localhost:4008/credentials/status/allocate' \
 }'
 ```
 
-This should return the same credential but with an allocated status. It should look something like this (it will be all smushed up, but you can format it in something like [json lint](https://jsonlint.com):
-
+This should return the same credential but with an allocated status. It should look something like this (it will be all smushed up, but you can format it in something like [JSONLint](https://jsonlint.com)):
 
 ```
 {
@@ -190,35 +190,33 @@ This should return the same credential but with an allocated status. It should l
 }
 ```
 
-Now your next step would be to sign this Verifiable Credential. You could, for example, pass the VC (with its newly allocated status position) to the [DCC signing-service](https://github.com/digitalcredentials/signing-service) which will sign and return the signed copy.  To see how this is can all be coordinated, take a look at the [DCC issuer-coordinator](https://github.com/digitalcredentials/issuer-coordinator).
+Now, your next step would be to sign this Verifiable Credential. You could pass the VC (with its newly allocated status position) to the [DCC signing-service](https://github.com/digitalcredentials/signing-service), which will sign and return the signed copy. To see how this is can all be coordinated, take a look at the [DCC issuer-coordinator](https://github.com/digitalcredentials/issuer-coordinator).
 
-NOTE: CURL can get a bit clunky if you want to experiment more (like say by changing what goes into the VC before signing), so you might consider trying [Postman](https://www.postman.com/downloads/) which makes it easier to construct and send HTTP calls.
-
+NOTE: CURL can get a bit clunky if you want to experiment more (e.g., by changing what goes into the VC before signing), so you might consider trying [Postman](https://www.postman.com/downloads) which makes it easier to construct and send HTTP calls.
 
 ### Revoke
 
-Revocation is fully explained in the Status List 2021 specification and the git status repo implemenation but amounts to POSTing an object to the revocation endpoint, like so:
+Revocation is fully explained in the Bitstring Status List specification and our implemenations thereof, but effectively, it amounts to POSTing an object to the revocation endpoint, like so:
 
 ```
 {credentialId: '23kdr', credentialStatus: [{type: 'StatusList2021Credential', status: 'revoked'}]}
 ```
 
-Fundamentally, you are just posting up the id of the credential.
-
+Fundamentally, you are just posting up the ID of the credential.
 
 ## Versioning
 
-`status-service-git` is primarily intended to run as a docker image within a docker compose network, typically as part of a flow that is orchestrated by the [DCC Issuer Coordinator](https://github.com/digitalcredentials/issuer-coordinator) and the [DCC Workflow Coordinator](https://github.com/digitalcredentials/workflow-coordinator).
+`status-service-git` is primarily intended to run as a Docker image within a Docker Compose network, typically as part of a flow that is orchestrated by the [DCC Issuer Coordinator](https://github.com/digitalcredentials/issuer-coordinator) and the [DCC Workflow Coordinator](https://github.com/digitalcredentials/workflow-coordinator).
 
-For convenience we've published the images for `status-service-git` and the other services used by the coordinators, as well as for the coordinators themselves, to Docker Hub so that you don't have to build them locally yourself from the GitHub repositories.
+For convenience, we've published the images for `status-service-git` and the other services used by the coordinators, as well as for the coordinators themselves, to Docker Hub so that you don't have to build them locally yourself from the GitHub repositories.
 
-The images on Docker Hub will of course at times be updated to add new functionality and fix bugs. Rather than overwrite the default (`latest`) version on Docker Hub for each update, we've adopted the [Semantic Versioning Guidelines](https://semver.org) with our docker image tags.
+The images on Docker Hub will at times be updated to add new functionality and fix bugs. Rather than overwrite the default (`latest`) version on Docker Hub for each update, we've adopted the [Semantic Versioning Guidelines](https://semver.org) with our Docker image tags.
 
-We DO NOT provide a `latest` tag so you must provide a tag name (i.e, the version number) for the images in your docker compose file.
+We DO NOT provide a `latest` tag so you must provide a tag name (i.e, the version number) for the images in your Docker Compose file.
 
 To ensure you've got compatible versions of the services and the coordinator, the `major` number for each should match. At the time of writing, the versions for each are at 0.1.0, and the `major` number (the leftmost number) agrees across all three.
 
-If you do ever want to work from the source code in the repository and build your own images, we've tagged the commits in GitHub that were used to build the corresponding Docker image. So a GitHub tag of v0.1.0 coresponds to a docker image tag of 0.1.0
+If you do ever want to work from the source code in the repository and build your own images, we've tagged the commits in GitHub that were used to build the corresponding Docker image. So a GitHub tag of v0.1.0 coresponds to a Docker image tag of 0.1.0
 
 ## Logging
 
@@ -256,8 +254,8 @@ The default log level for the console is `silly`, which logs everything.
 
 There are also two log files that can be enabled:
 
-* errors (only logs errors)
-* all (logs everything - all log levels)
+- errors (only logs errors)
+- all (logs everything - all log levels)
 
 Enable each log by setting an env variable for each, indicating the path to the appropriate file, like this example:
 
@@ -281,11 +279,11 @@ npm run dev
 
 ### Testing
 
-Testing uses supertest, jest, and nock to test the endpoints.  To run tests:
+Testing uses `supertest`, `jest`, and `nock` to test the endpoints. To run tests:
 
 ```npm run test```
 
-Because `status-service-git` uses Git services to store status, calls are made out to HTTP API endpoints during issuance. Rather than have to make these calls for every test, and possibly in cases where outgoing HTTP calls aren't ideal, we've mocked the @digitalcredentials/credential-status-manager-git package.
+Because `status-service-git` uses Git services to manage status, calls are made out to HTTP API endpoints during issuance. Rather than making these calls for every test, and possibly in cases where outgoing HTTP calls aren't ideal, we've mocked the `@digitalcredentials/credential-status-manager-git` package.
 
 ## Contribute
 
@@ -296,4 +294,4 @@ If editing the Readme, please conform to the
 
 ## License
 
-[MIT License](LICENSE.md) © 2023 Digital Credentials Consortium.
+[MIT License](LICENSE.md) © 2023-2024 Digital Credentials Consortium.

@@ -1,8 +1,8 @@
 
 let CONFIG;
-const defaultPort = 4008
-const defaultConsoleLogLevel = 'silly'
-const defaultLogLevel = 'silly'
+const defaultPort = 4008;
+const defaultConsoleLogLevel = 'silly';
+const defaultLogLevel = 'silly';
 
 export function setConfig() {
   CONFIG = parseConfig();
@@ -60,12 +60,12 @@ function parseConfig() {
     ...generalEnvs,
     ...serviceSpecificEnvs
   });
-  return config
+  return config;
 }
 
 export function getConfig() {
   if (!CONFIG) {
-    setConfig()
+    setConfig();
   }
   return CONFIG;
 }
