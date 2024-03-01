@@ -23,7 +23,7 @@ describe('api', () => {
 
       expect(response.header["content-type"]).to.have.string("json");
       expect(response.status).to.eql(200);
-      expect(response.body.message).to.eql("status-service server status: ok.")
+      expect(response.body.message).to.eql("status-service-git server status: ok.")
 
     });
   })
@@ -129,7 +129,7 @@ describe('api', () => {
       expect(response.header["content-type"]).to.have.string("json");
       expect(response.status).to.eql(404);
       console.log(response.body.message)
-      expect(response.body.message).to.contain("An error occurred in the status-service: Credential ID not found.")
+      expect(response.body.message).to.contain("An error occurred in status-service-git: Credential ID not found.")
     })
 
   })

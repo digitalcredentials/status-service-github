@@ -1,26 +1,7 @@
-import {
-  createStatusManager as createStatusManagerDb
-} from '@digitalcredentials/credential-status-manager-db';
-import {
-  createStatusManager as createStatusManagerGit
-} from '@digitalcredentials/credential-status-manager-git';
+import { createStatusManager } from '@digitalcredentials/credential-status-manager-git';
 import { getConfig } from './config.js';
 
 const {
-  // Database env vars
-  statusCredSiteOrigin,
-  credStatusDatabaseUrl,
-  credStatusDatabaseHost,
-  credStatusDatabasePort,
-  credStatusDatabaseUsername,
-  credStatusDatabasePassword,
-  credStatusDatabaseName,
-  statusCredTableName,
-  configTableName,
-  eventTableName,
-  credEventTableName,
-
-  // Git env vars
   credStatusService,
   credStatusRepoName,
   credStatusRepoId,
@@ -33,36 +14,8 @@ const {
 
 let STATUS_LIST_MANAGER;
 
-async function createDatabaseStatusManager() {
-  return createStatusManagerDb({
-    statusCredentialSiteOrigin: statusCredSiteOrigin,
-    databaseService: credStatusService,
-    databaseUrl: credStatusDatabaseUrl,
-    databaseHost: credStatusDatabaseHost,
-    databasePort: credStatusDatabasePort,
-    databaseUsername: credStatusDatabaseUsername,
-    databasePassword: credStatusDatabasePassword,
-    databaseName: credStatusDatabaseName,
-    statusCredentialTableName: statusCredTableName,
-    configTableName,
-    eventTableName,
-    credentialEventTableName: credEventTableName,
-    didMethod: 'key',
-    didSeed: credStatusDidSeed,
-    // This is the already the default value,
-    // but setting here to be explicit
-    autoDeployDatabase: true,
-    // This is the already the default value,
-    // but setting here to be explicit
-    signStatusCredential: true,
-    // This is the already the default value,
-    // but setting here to be explicit
-    signUserCredential: false
-  });
-}
-
 async function createGitHubStatusManager() {
-  return createStatusManagerGit({
+  return createStatusManager({
     gitService: credStatusService,
     repoName: credStatusRepoName,
     metaRepoName: credStatusMetaRepoName,
@@ -81,7 +34,7 @@ async function createGitHubStatusManager() {
 }
 
 async function createGitLabStatusManager() {
-  return createStatusManagerGit({
+  return createStatusManager({
     gitService: credStatusService,
     repoName: credStatusRepoName,
     repoId: credStatusRepoId,
@@ -111,9 +64,6 @@ async function initializeStatusManager(statusManager) {
   }
 
   switch (credStatusService) {
-    case 'mongodb':
-      STATUS_LIST_MANAGER = await createDatabaseStatusManager();
-      break;
     case 'github':
       STATUS_LIST_MANAGER = await createGitHubStatusManager();
       break;

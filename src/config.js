@@ -22,23 +22,6 @@ function getGeneralEnvs() {
   };
 }
 
-function getMongoDbEnvs() {
-  const env = process.env;
-  return {
-    statusCredSiteOrigin: env.STATUS_CRED_SITE_ORIGIN,
-    credStatusDatabaseUrl: env.CRED_STATUS_DB_URL,
-    credStatusDatabaseHost: env.CRED_STATUS_DB_HOST,
-    credStatusDatabasePort: env.CRED_STATUS_DB_PORT,
-    credStatusDatabaseUsername: env.CRED_STATUS_DB_USER,
-    credStatusDatabasePassword: env.CRED_STATUS_DB_PASS,
-    credStatusDatabaseName: env.CRED_STATUS_DB_NAME,
-    statusCredTableName: env.STATUS_CRED_TABLE_NAME,
-    configTableName: env.CONFIG_TABLE_NAME,
-    eventTableName: env.EVENT_TABLE_NAME,
-    credEventTableName: env.CRED_EVENT_TABLE_NAME
-  };
-}
-
 function getGitHubEnvs() {
   const env = process.env;
   return {
@@ -63,9 +46,6 @@ function parseConfig() {
   const env = process.env
   let serviceSpecificEnvs;
   switch (env.CRED_STATUS_SERVICE) {
-    case 'mongodb':
-      serviceSpecificEnvs = getMongoDbEnvs();
-      break;
     case 'github':
       serviceSpecificEnvs = getGitHubEnvs();
       break;
@@ -85,7 +65,7 @@ function parseConfig() {
 
 export function getConfig() {
   if (!CONFIG) {
-     setConfig()
+    setConfig()
   }
   return CONFIG;
 }

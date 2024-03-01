@@ -1,8 +1,8 @@
-import logger from '../utils/logger.js'
+import logger from '../utils/logger.js';
 
 const errorLogger = (error, request, response, next) => {
   const logEntry = {originalError: error}
-  logEntry.message = 'An error occurred in the status-service.'
+  logEntry.message = 'An error occurred in status-service-git.'
   const logEntrySummary = `Error for route: ${request.originalUrl} - ${request.method} - IP: ${request.ip} - `
 
   // Note that the logEntry here is what Winston calls a 'meta' object. 
@@ -12,4 +12,4 @@ const errorLogger = (error, request, response, next) => {
   next(error) // done logging, so call the next middleware that deals with errors
 }
 
-export default errorLogger
+export default errorLogger;

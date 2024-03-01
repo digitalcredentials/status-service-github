@@ -20,7 +20,7 @@ export async function build(opts = {}) {
   app.use(cors());
 
   app.get('/', function (req, res, next) {
-    res.send({ message: 'status-service server status: ok.' });
+    res.send({ message: 'status-service-git server status: ok.' });
   });
 
   // get status credential

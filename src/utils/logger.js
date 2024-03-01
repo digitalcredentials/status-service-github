@@ -1,5 +1,5 @@
 import winston from 'winston';
-import { getConfig } from '../config.js'
+import { getConfig } from '../config.js';
 
 const { errorLogFile, logAllFile, logLevel, consoleLogLevel } = getConfig()
 /* 
@@ -42,28 +42,28 @@ Here we output as defined in the env
 */
 const transports = []
 
-  if (consoleLogLevel.toLowerCase() !== 'none') { transports.push(new winston.transports.Console({
-    level: consoleLogLevel
-  }))}
-  
-  if (errorLogFile) { 
-    transports.push(new winston.transports.File({
-      filename: errorLogFile,
-      level: 'error',
-    }))
-  }
+if (consoleLogLevel.toLowerCase() !== 'none') { transports.push(new winston.transports.Console({
+  level: consoleLogLevel
+}))}
 
-  if (logAllFile) {
-    transports.push(new winston.transports.File({ 
-      filename: logAllFile
-    }))
-  }
+if (errorLogFile) {
+  transports.push(new winston.transports.File({
+    filename: errorLogFile,
+    level: 'error',
+  }))
+}
+
+if (logAllFile) {
+  transports.push(new winston.transports.File({ 
+    filename: logAllFile
+  }))
+}
 
 const logger = winston.createLogger({
   level: level(),
   levels,
   format,
   transports,
-})
+});
 
-export default logger
+export default logger;
