@@ -11,10 +11,12 @@ IMPORTANT NOTE ABOUT VERSIONING: If you are using a Docker Hub image of this rep
 - [Signing Key](#signing-key)
   - [DID Registries](#did-registries)
 - [Usage](#usage)
-  - [Allocate a status position](#allocate-status-position)
+  - [Allocate Status Position](#allocate-status-position)
   - [Revoke](#revoke)
 - [Versioning](#versioning)
 - [Logging](#logging)
+  - [Log Levels](#log-levels)
+  - [Access Logging](#access-logging)
 - [Development](#development)
   - [Testing](#testing)
 - [Contribute](#contribute)
@@ -37,17 +39,18 @@ This service provides support for managing credential status in a variety of Git
 
 | Key | Description | Type | Required |
 | --- | --- | --- | --- |
-| `CRED_STATUS_SERVICE` | name of the Git service used to manage credential status data | `github` \| `gitlab` | yes if `ENABLE_STATUS_ALLOCATION` is true |
-| \* `CRED_STATUS_OWNER` | name of the owner account (personal or organization) in the Git service used to manage credential status data | string | yes if `ENABLE_STATUS_ALLOCATION` is true |
-| \* `CRED_STATUS_REPO_NAME` | name of the status credential repository | string | yes if `ENABLE_STATUS_ALLOCATION` is true |
-| \* `CRED_STATUS_REPO_ID` | ID of the status credential repository | string | yes if `ENABLE_STATUS_ALLOCATION` is true and if `CRED_STATUS_SERVICE` = `gitlab` |
-| \* `CRED_STATUS_META_REPO_NAME` | name of the credential status metadata repository | string | yes if `ENABLE_STATUS_ALLOCATION` is true |
-| \* `CRED_STATUS_META_REPO_ID` | ID of the credential status metadata repository | string | yes if `ENABLE_STATUS_ALLOCATION` is true and if `CRED_STATUS_SERVICE` = `gitlab` |
-| `CRED_STATUS_ACCESS_TOKEN` | access token for the credential status repositories | string | yes if `ENABLE_STATUS_ALLOCATION` is true |
-| `CRED_STATUS_DID_SEED` | seed used to deterministically generate DID | string | yes if `ENABLE_STATUS_ALLOCATION` is true |
+| `CRED_STATUS_SERVICE` | name of the Git service used to manage credential status data | `github` \| `gitlab` | yes |
+| \* `CRED_STATUS_OWNER` | name of the owner account (personal or organization) in the Git service used to manage credential status data | string | yes |
+| \* `CRED_STATUS_REPO_NAME` | name of the status credential repository | string | yes |
+| \* `CRED_STATUS_REPO_ID` | ID of the status credential repository | string | yes if `CRED_STATUS_SERVICE` = `gitlab` |
+| \* `CRED_STATUS_META_REPO_NAME` | name of the credential status metadata repository | string | yes |
+| \* `CRED_STATUS_META_REPO_ID` | ID of the credential status metadata repository | string | yes if `CRED_STATUS_SERVICE` = `gitlab` |
+| `CRED_STATUS_ACCESS_TOKEN` | access token for the credential status repositories | string | yes |
+| `CRED_STATUS_DID_SEED` | seed used to deterministically generate DID | string | yes |
 | `PORT` | HTTP port on which to run the express app | number | no (default: `4008`) |
+| `ENABLE_ACCESS_LOGGING` | whether to enable access logging (see [Logging](#logging)) | boolean | no (default: `true`) |
 | `ERROR_LOG_FILE` | log file for all errors (see [Logging](#logging)) | string | no |
-| `LOG_ALL_FILE` | log file for everything (see [Logging](#logging)) | string | no |
+| `ALL_LOG_FILE` | log file for everything (see [Logging](#logging)) | string | no |
 | `CONSOLE_LOG_LEVEL` | console log level (see [Logging](#logging)) | `error` \| `warn`\| `info` \| `http` \| `verbose` \| `debug` \| `silly` | no (default: `silly`) |
 | `LOG_LEVEL` | log level for application (see [Logging](#logging)) | `error` \| `warn`\| `info` \| `http` \| `verbose` \| `debug` \| `silly` | no (default: `silly`) |
 
@@ -220,6 +223,8 @@ If you do ever want to work from the source code in the repository and build you
 
 ## Logging
 
+### Log Levels
+
 We support the following log levels:
 
 ```
@@ -260,11 +265,21 @@ There are also two log files that can be enabled:
 Enable each log by setting an env variable for each, indicating the path to the appropriate file, like this example:
 
 ```
-LOG_ALL_FILE=logs/all.log
 ERROR_LOG_FILE=logs/error.log
+ALL_LOG_FILE=logs/all.log
 ```
 
 If you don't set the path, the log is disabled.
+
+### Access Logging
+
+Finally, you can enable access logging to record each API request. Here is the format of each log entry:
+
+```
+:REMOTE_ADDRESS :HTTP_METHOD :URL :HTTP_STATUS :RESPONSE_CONTENT_LENGTH - :RESPONSE_TIME_MS
+```
+
+To enable access logging, set `ENABLE_ACCESS_LOGGING` to `true`.
 
 ## Development
 
@@ -279,7 +294,7 @@ npm run dev
 
 ### Testing
 
-Testing uses `supertest`, `jest`, and `nock` to test the endpoints. To run tests:
+Testing uses `mocha` and `supertest` to test the endpoints. To run tests:
 
 ```npm run test```
 
